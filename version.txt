@@ -1,2 +1,5 @@
+v0.0.2.0
+-implemented structs for this service
+
 v0.0.1.0
 -Basic framework for internal routing

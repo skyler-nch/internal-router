@@ -1,11 +1,12 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
-
+from typing import Annotated
 from dotenv import load_dotenv
 
 from src.router import routes
+from src.structs import PathDetailStruct, PathStruct
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(BASEDIR,'.env'))
@@ -30,19 +31,19 @@ app.add_middleware(
 
 Route = routes()
 
-@app.get("/route/{path}")
-async def route(path:str):
+@app.get("/route")
+async def route(path:Annotated[PathStruct,Query()]):
     return RedirectResponse(Route.redirect(path))
 
-@app.post("/route/{path}")
-async def route(path:str):
+@app.post("/route")
+async def route(path:PathStruct):
     return RedirectResponse(Route.redirect(path))
 
-@app.get("/addroute")
-async def addroute(path:str, link:str, method:str):
-    return Route.create_route(path, link, method)
+@app.post("/addroute")
+async def addroute(payload:PathDetailStruct):
+    return Route.create_route(payload)
 
-@app.get("/removeroute")
+@app.post("/removeroute")
 async def removeroute():
     return
 
