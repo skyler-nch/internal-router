@@ -1,0 +1,12 @@
+services:
+  internal-router:
+    restart: always
+    image: internal-router:latest
+    ports:
+      - 5002:5002
+    networks:
+      - proxynet
+  
+networks: 
+  proxynet:
+    name: backend_docker_network
