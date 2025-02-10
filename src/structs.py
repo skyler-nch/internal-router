@@ -1,5 +1,8 @@
 from pydantic import BaseModel, Field
 
+class PayloadStruct(BaseModel):
+    payload:dict = None
+
 class PathStruct(BaseModel):
     id:str = Field(serialization_alias="_id")
 

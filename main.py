@@ -1,12 +1,12 @@
 import os
-from fastapi import FastAPI, Query, Body
+from fastapi import FastAPI, Query, Body, Request, status, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
-from typing import Annotated
+from fastapi.responses import RedirectResponse, Response
+from typing import Annotated,Optional
 from dotenv import load_dotenv
 
 from src.router import routes
-from src.structs import PathDetailStruct, PathStruct
+from src.structs import PathDetailStruct, PathStruct, PayloadStruct
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(BASEDIR,'.env'))
@@ -31,13 +31,9 @@ app.add_middleware(
 
 Route = routes()
 
-@app.get("/route")
-async def route(path:Annotated[PathStruct,Query()]):
-    return RedirectResponse(Route.redirect(path))
-
-@app.post("/route")
-async def route(path:PathStruct):
-    return RedirectResponse(Route.redirect(path))
+@app.get("/")
+async def root():
+    return {"message":"Hello World", "detail":"internal-router"}
 
 @app.post("/addroute")
 async def addroute(payload:PathDetailStruct):
@@ -47,6 +43,25 @@ async def addroute(payload:PathDetailStruct):
 async def removeroute():
     return
 
-@app.get("/")
-async def root():
-    return {"message":"Hello World", "detail":"internal-router"}
+@app.get("/{pathinput}")
+async def route(pathinput: str, request: Request):
+    path = PathStruct(id=pathinput)
+    query = request.query_params
+    redirect_link = Route.retrieve_route(path)
+    if redirect_link == None:
+        raise HTTPException(status_code=404, detail="path does not exist (internal-router)")
+    url = redirect_link["link"]+f"?{query}"
+    return RedirectResponse(url)
+
+@app.post("/{pathinput}")
+async def route(pathinput:str, request: Request):
+    path = PathStruct(id=pathinput)
+    redirect_link = Route.retrieve_route(path)
+    if redirect_link == None:
+        raise HTTPException(status_code=404, detail="path does not exist (internal-router)")
+    header = {'Location':redirect_link["link"]}
+    payload = await request.body()
+    return Response(headers=header, content=payload, status_code=status.HTTP_307_TEMPORARY_REDIRECT)
+
+
+

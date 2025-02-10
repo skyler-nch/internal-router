@@ -1,3 +1,7 @@
+v0.0.3.0
+-Both Post and Get routing service allows for payloads
+-Added 404 response if service registry returns None
+
 v0.0.2.0
 -implemented structs for this service
 

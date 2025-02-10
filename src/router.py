@@ -30,6 +30,3 @@ class routes:
         )
         return self._postrequest(payload.model_dump(by_alias=True))
     
-    def redirect(self,path:PathStruct):
-        link = self.retrieve_route(path)
-        return link["link"]
